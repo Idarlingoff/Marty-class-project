@@ -1,73 +1,82 @@
-# React + TypeScript + Vite
+# FRAP — Jeu de gestion des risques
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application web interactive pour une présentation orale autour de l'analyse et du traitement des risques.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Vite** + **React** + **TypeScript**
+- **Supabase** (base de données + temps réel)
+- **Motion** v12 (`motion/react`) pour les animations
+- **React Router** (HashRouter)
+- Déploiement **GitHub Pages**
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Démarrage rapide
 
-## Expanding the ESLint configuration
+### 1. Variables d'environnement
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cp .env.example .env.local
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Éditez `.env.local` :
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 ```
+
+### 2. Installer et lancer
+
+```bash
+npm install
+npm run dev
+```
+
+### 3. Build
+
+```bash
+npm run build
+```
+
+---
+
+## Base de données Supabase
+
+Créez ces tables dans votre projet Supabase :
+
+**games** : `id uuid PK`, `status text`, `credits int4`, `created_at timestamptz`
+
+**fraps** : `id uuid PK`, `game_id uuid FK`, `code text`, `name text`, `criticality text`, `probability int4`, `impact int4`, `presenter_credits int4`, `created_at timestamptz`
+
+**team_answers** : `id uuid PK`, `game_id uuid FK`, `team_number int4`, `answers jsonb`, `remaining_credits int4`, `created_at timestamptz`
+
+> Activez **Realtime** sur `team_answers` dans Supabase → Table Editor → Replication.
+
+---
+
+## Déploiement GitHub Pages
+
+1. `Settings → Pages → Source : GitHub Actions`
+2. `Settings → Environments → prod` → ajouter les secrets :
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_PUBLISHABLE_KEY`
+3. Push sur `main` → déploiement automatique.
+
+URL : `https://<username>.github.io/marty-class-project/`
+
+---
+
+## Règles du jeu
+
+- **Présentateur** : crée la partie, configure les FRAP, lance la session.
+- **Équipes (1–3)** : attribuent des crédits (0–3) par FRAP sans dépasser le budget.
+- **Score** = réduction de risque totale / crédits utilisés.
+
+### Réduction du risque par crédit
+| Crédits | Effet |
+|---|---|
+| 1 | Impact −1 |
+| 2 | Probabilité −1, Impact −1 |
+| 3 | Probabilité −2, Impact −2 |

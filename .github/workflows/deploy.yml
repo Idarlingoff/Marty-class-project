@@ -39,11 +39,16 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Déclenche la base URL /marty-class-project/ dans vite.config.ts
           GITHUB_PAGES: true
-          # Injectées depuis les secrets de l'environnement GitHub "prod"
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+      - name: Vérification du build
+        run: |
+          echo "=== dist/ ===" && ls -la dist/
+          echo "=== dist/assets/ ===" && ls -la dist/assets/
+          # Assure que GitHub Pages ne passe pas par Jekyll
+          touch dist/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

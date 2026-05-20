@@ -15,11 +15,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  # ── Job 1 : Build (accède aux secrets de l'environnement "prod") ────────────
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: prod
-      url: ${{ steps.deployment.outputs.page_url }}
+    environment: prod
 
     steps:
       - name: Checkout
@@ -32,8 +31,6 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        # npm install plutôt que npm ci : évite les erreurs de lockfile
-        # liées aux paquets natifs optionnels (ex: @emnapi) selon la plateforme
         run: npm install
 
       - name: Build
@@ -47,17 +44,22 @@ jobs:
         run: |
           echo "=== dist/ ===" && ls -la dist/
           echo "=== dist/assets/ ===" && ls -la dist/assets/
-          # Assure que GitHub Pages ne passe pas par Jekyll
           touch dist/.nojekyll
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
+      - name: Upload artifact Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
+  # ── Job 2 : Deploy (environnement "github-pages" requis par GitHub) ────────
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

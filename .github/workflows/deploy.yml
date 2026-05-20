@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   # ── Job 1 : Build (accède aux secrets de l'environnement "prod") ────────────
@@ -44,7 +44,15 @@ jobs:
         run: |
           echo "=== dist/ ===" && ls -la dist/
           echo "=== dist/assets/ ===" && ls -la dist/assets/
+          # Échoue immédiatement si le dossier assets/ est vide
+          ASSET_COUNT=$(ls dist/assets/ | wc -l | tr -d ' ')
+          if [ "$ASSET_COUNT" -eq 0 ]; then
+            echo "❌ dist/assets/ est vide — le build a échoué silencieusement"
+            exit 1
+          fi
+          echo "✅ $ASSET_COUNT fichiers dans dist/assets/"
           touch dist/.nojekyll
+          echo "✅ .nojekyll créé"
 
       - name: Upload artifact Pages
         uses: actions/upload-pages-artifact@v3

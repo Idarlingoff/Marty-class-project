@@ -49,13 +49,26 @@ export async function updateGameStatus(id: string, status: GameStatus): Promise<
 
 // ─── FRAP ────────────────────────────────────────────────────────────────────
 
+/** Convertit un FrapFormData (camelCase) en ligne DB (snake_case) */
+function toDbRow(f: FrapFormData, gameId: string) {
+  const { creditActions, ...rest } = f;
+  return { ...rest, game_id: gameId, credit_actions: creditActions };
+}
+
+/** Reconvertit une ligne DB en Frap TypeScript (snake_case → camelCase) */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function fromDbRow(row: any): Frap {
+  const { credit_actions, ...rest } = row;
+  return { ...rest, creditActions: credit_actions ?? { 1: '', 2: '', 3: '' } } as Frap;
+}
+
 /** Insère les FRAP d'une partie */
 export async function insertFraps(gameId: string, fraps: FrapFormData[]): Promise<Frap[]> {
-  const rows = fraps.map((f) => ({ ...f, game_id: gameId }));
+  const rows = fraps.map((f) => toDbRow(f, gameId));
   const { data, error } = await supabase.from('fraps').insert(rows).select();
 
   if (error) throw new Error(`Erreur insertion FRAP : ${error.message}`);
-  return data as Frap[];
+  return (data ?? []).map(fromDbRow);
 }
 
 /** Récupère les FRAP d'une partie */
@@ -67,7 +80,7 @@ export async function getGameFraps(gameId: string): Promise<Frap[]> {
     .order('code', { ascending: true });
 
   if (error) throw new Error(`Erreur récupération FRAP : ${error.message}`);
-  return data as Frap[];
+  return (data ?? []).map(fromDbRow);
 }
 
 // ─── Réponses équipes ────────────────────────────────────────────────────────

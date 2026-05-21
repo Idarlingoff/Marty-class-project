@@ -193,7 +193,7 @@ const RiskMatrix: React.FC<RiskMatrixProps> = ({
             >
               <circle cx={x} cy={y} r={10} fill={color} opacity={0.25} />
               <circle cx={x} cy={y} r={5} fill={color} />
-              <title>{frap.code} — {frap.name}</title>
+              <title>{frap.code} — {frap.title}</title>
             </motion.g>
           );
         })}

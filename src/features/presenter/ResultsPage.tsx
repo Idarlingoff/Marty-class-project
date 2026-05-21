@@ -72,7 +72,7 @@ const FrapAccordion: React.FC<{ fraps: Frap[]; answers: FrapAnswers; color: stri
                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: dotColor, flexShrink: 0 }} />
                     <span style={{ fontFamily: 'monospace', fontSize: '11px', color: dotColor, minWidth: '56px' }}>{frap.code}</span>
                     <span style={{ flex: 1, fontSize: '13px', color: '#cbd5e1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {frap.name}
+                      {frap.title}
                     </span>
                     <span style={{ fontSize: '13px', fontWeight: 700, color: credits > 0 ? color : '#475569', minWidth: '48px', textAlign: 'right' }}>
                       {credits} cr.

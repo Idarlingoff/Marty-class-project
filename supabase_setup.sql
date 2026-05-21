@@ -16,11 +16,14 @@ CREATE TABLE IF NOT EXISTS fraps (
   id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   game_id           uuid NOT NULL REFERENCES games(id) ON DELETE CASCADE,
   code              text NOT NULL,
-  name              text NOT NULL,
+  cycle             text NOT NULL DEFAULT '',
+  title             text NOT NULL,
   criticality       text NOT NULL,
   probability       int4 NOT NULL CHECK (probability BETWEEN 1 AND 5),
   impact            int4 NOT NULL CHECK (impact BETWEEN 1 AND 5),
   presenter_credits int4 NOT NULL DEFAULT 0 CHECK (presenter_credits BETWEEN 0 AND 3),
+  description       text NOT NULL DEFAULT '',
+  credit_actions    jsonb NOT NULL DEFAULT '{"1":"","2":"","3":""}',
   created_at        timestamptz NOT NULL DEFAULT now()
 );
 
@@ -72,4 +75,36 @@ ALTER PUBLICATION supabase_realtime ADD TABLE team_answers;
 -- ── Vérification ─────────────────────────────────────────────────────────────
 SELECT tablename, rowsecurity FROM pg_tables
 WHERE tablename IN ('games', 'fraps', 'team_answers');
+
+-- ── Migration (si la table fraps existait déjà avec l'ancien schéma) ─────────
+-- À exécuter dans : Supabase Dashboard → SQL Editor → New query
+
+-- 1. Renommer la colonne name → title (si elle existe encore)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'fraps' AND column_name = 'name'
+  ) THEN
+    ALTER TABLE fraps RENAME COLUMN name TO title;
+  END IF;
+END $$;
+
+-- 2. Ajouter la colonne cycle (si absente)
+ALTER TABLE fraps
+  ADD COLUMN IF NOT EXISTS cycle text NOT NULL DEFAULT '';
+
+-- 3. Ajouter la colonne description (si absente)
+ALTER TABLE fraps
+  ADD COLUMN IF NOT EXISTS description text NOT NULL DEFAULT '';
+
+-- 4. Ajouter la colonne credit_actions (si absente)
+ALTER TABLE fraps
+  ADD COLUMN IF NOT EXISTS credit_actions jsonb NOT NULL DEFAULT '{"1":"","2":"","3":""}';
+
+-- ── Vérification post-migration ───────────────────────────────────────────────
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_name = 'fraps'
+ORDER BY ordinal_position;
 

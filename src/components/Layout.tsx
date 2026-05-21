@@ -81,7 +81,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title, showBack = true }) => 
       <main
         style={{
           flex: 1,
-          maxWidth: '1200px',
+          maxWidth: '1800px',
           width: '100%',
           margin: '0 auto',
           padding: '32px 24px',

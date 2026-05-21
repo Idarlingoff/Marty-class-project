@@ -25,12 +25,12 @@ const Block: React.FC<BlockProps> = ({ title, color, fraps, answers, hasAnswered
   const creditsUsed = Object.values(answers).reduce((s, c) => s + c, 0);
 
   return (
-    <Card style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <Card style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* En-tête bloc */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: color, display: 'inline-block' }} />
-          <span style={{ fontWeight: 700, color: '#e2e8f0', fontSize: '16px' }}>{title}</span>
+          <span style={{ fontWeight: 700, color: '#e2e8f0', fontSize: '15px' }}>{title}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
@@ -51,7 +51,7 @@ const Block: React.FC<BlockProps> = ({ title, color, fraps, answers, hasAnswered
       <div style={{ display: 'flex', gap: '6px' }}>
         {(['credits', 'matrix'] as ViewMode[]).map((v) => (
           <button key={v} onClick={() => setView(v)} style={{
-            padding: '5px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer',
+            padding: '8px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
             background: view === v ? '#7c3aed' : '#1f2235',
             color: view === v ? '#fff' : '#94a3b8',
             border: view === v ? 'none' : '1px solid #3d4166',
@@ -63,14 +63,14 @@ const Block: React.FC<BlockProps> = ({ title, color, fraps, answers, hasAnswered
 
       {/* Contenu */}
       {view === 'credits' ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '320px', overflowY: 'auto', paddingRight: '4px' }}>
           {fraps.map((frap) => (
             <FrapCardRead key={frap.id} frap={frap} credits={answers[frap.id] ?? 0} showCredits />
           ))}
         </div>
       ) : (
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <RiskMatrix fraps={fraps} answers={answers} showEvolution size={320} />
+          <RiskMatrix fraps={fraps} answers={answers} showEvolution size={280} />
         </div>
       )}
     </Card>
@@ -174,7 +174,7 @@ const PresenterDashboardPage: React.FC = () => {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
           {blocks.map((b, i) => (
             <Block
               key={b.title}
